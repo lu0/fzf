@@ -17,10 +17,10 @@ __fzf_select__() {
   local cmd
   if [[ $1 ]]; then
     # cding
-    local cmd="${FZF_CTRL_F_COMMAND:-"command find -L . -mindepth 1  -type d \\( -name .git -prune -o -print \\) | cut -b3-"}"
+    local cmd="${FZF_CTRL_F_COMMAND:-"command find -L . -mindepth 1 -maxdepth 15 -type d \\( -name .git -prune -o -print \\) | cut -b3-"}"
   else
     # everything else
-    local cmd="${FZF_CTRL_F_COMMAND:-"command find -L . -mindepth 1  -type d -name .git -prune -o -print | cut -b3-"}"
+    local cmd="${FZF_CTRL_F_COMMAND:-"command find -L . -mindepth 1 -maxdepth 15 -type d -name .git -prune -o -print | cut -b3-"}"
   fi
   eval "$cmd" | FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} --reverse --bind=ctrl-z:ignore $FZF_DEFAULT_OPTS $FZF_CTRL_F_OPTS" $(__fzfcmd) -m "$@" | while read -r item; do
     printf '%q ' "$item"
