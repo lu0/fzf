@@ -5,8 +5,8 @@
 # /_/   /___/_/ key-bindings.bash
 #
 # - $FZF_TMUX_OPTS
-# - $FZF_CTRL_T_COMMAND
-# - $FZF_CTRL_T_OPTS
+# - $FZF_CTRL_F_COMMAND
+# - $FZF_CTRL_F_OPTS
 # - $FZF_CTRL_R_OPTS
 # - $FZF_ALT_C_COMMAND
 # - $FZF_ALT_C_OPTS
@@ -14,11 +14,15 @@
 # Key bindings
 # ------------
 __fzf_select__() {
-  local cmd="${FZF_CTRL_T_COMMAND:-"command find -L . -mindepth 1 \\( -path '*/\\.*' -o -fstype 'sysfs' -o -fstype 'devfs' -o -fstype 'devtmpfs' -o -fstype 'proc' \\) -prune \
-    -o -type f -print \
-    -o -type d -print \
-    -o -type l -print 2> /dev/null | cut -b3-"}"
-  eval "$cmd" | FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} --reverse --bind=ctrl-z:ignore $FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" $(__fzfcmd) -m "$@" | while read -r item; do
+  local cmd
+  if [[ $1 ]]; then
+    # cding
+    local cmd="${FZF_CTRL_F_COMMAND:-"command find -L . -mindepth 1  -type d \\( -name .git -prune -o -print \\) | cut -b3-"}"
+  else
+    # everything else
+    local cmd="${FZF_CTRL_F_COMMAND:-"command find -L . -mindepth 1  -type d -name .git -prune -o -print | cut -b3-"}"
+  fi
+  eval "$cmd" | FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} --reverse --bind=ctrl-z:ignore $FZF_DEFAULT_OPTS $FZF_CTRL_F_OPTS" $(__fzfcmd) -m "$@" | while read -r item; do
     printf '%q ' "$item"
   done
   echo
@@ -32,7 +36,12 @@ __fzfcmd() {
 }
 
 fzf-file-widget() {
-  local selected="$(__fzf_select__)"
+  local selected
+  if [[ "${READLINE_LINE:0:$READLINE_POINT}" == "cd " ]]; then
+    selected="$(__fzf_select__ 1)"
+  else
+    selected="$(__fzf_select__)"
+  fi
   READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
   READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
 }
@@ -67,20 +76,20 @@ bind -m vi-insert '"\C-z": emacs-editing-mode'
 bind -m emacs-standard '"\C-z": vi-editing-mode'
 
 if (( BASH_VERSINFO[0] < 4 )); then
-  # CTRL-T - Paste the selected file path into the command line
-  bind -m emacs-standard '"\C-t": " \C-b\C-k \C-u`__fzf_select__`\e\C-e\er\C-a\C-y\C-h\C-e\e \C-y\ey\C-x\C-x\C-f"'
-  bind -m vi-command '"\C-t": "\C-z\C-t\C-z"'
-  bind -m vi-insert '"\C-t": "\C-z\C-t\C-z"'
+  # CTRL-F - Paste the selected file path into the command line
+  bind -m emacs-standard '"\C-f": " \C-b\C-k \C-u`__fzf_select__`\e\C-e\er\C-a\C-y\C-h\C-e\e \C-y\ey\C-x\C-x\C-f"'
+  bind -m vi-command '"\C-f": "\C-z\C-t\C-z"'
+  bind -m vi-insert '"\C-f": "\C-z\C-t\C-z"'
 
   # CTRL-R - Paste the selected command from history into the command line
   bind -m emacs-standard '"\C-r": "\C-e \C-u\C-y\ey\C-u"$(__fzf_history__)"\e\C-e\er"'
   bind -m vi-command '"\C-r": "\C-z\C-r\C-z"'
   bind -m vi-insert '"\C-r": "\C-z\C-r\C-z"'
 else
-  # CTRL-T - Paste the selected file path into the command line
-  bind -m emacs-standard -x '"\C-t": fzf-file-widget'
-  bind -m vi-command -x '"\C-t": fzf-file-widget'
-  bind -m vi-insert -x '"\C-t": fzf-file-widget'
+  # CTRL-F - Paste the selected file path into the command line
+  bind -m emacs-standard -x '"\C-f": fzf-file-widget'
+  bind -m vi-command -x '"\C-f": fzf-file-widget'
+  bind -m vi-insert -x '"\C-f": fzf-file-widget'
 
   # CTRL-R - Paste the selected command from history into the command line
   bind -m emacs-standard -x '"\C-r": __fzf_history__'
