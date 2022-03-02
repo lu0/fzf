@@ -5,6 +5,11 @@
 - Find only directories when `cd ` was typed before triggering `fzf` with `Ctrl-F`.
 - Execute typed command on `enter`, instead of just appending the result.
 
+Quick install:
+```sh
+git clone --depth 1 https://github.com/lu0/fzf.git
+ln -srf fzf ~/.fzf && ~/.fzf/install --all
+```
 
 **Original README**:
 
