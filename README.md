@@ -3,7 +3,6 @@
 - Use `Ctrl-F` instead of `Ctrl-T`.
     - I associate this keybinding better with "find".
 - Find only directories when `cd ` was typed before triggering `fzf` with `Ctrl-F`.
-- Execute typed command on `enter`, instead of just appending the result.
 
 Quick install:
 ```sh
