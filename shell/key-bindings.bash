@@ -28,6 +28,16 @@ __fzf_select__() {
   echo
 }
 
+__fzf_select_py_file_basename_no_ext__() {
+  local cmd="${FZF_CTRL_F_COMMAND:-"command find -L . -mindepth 1 -maxdepth 15 -type f -name *.py \\( -wholename "*.git/*" -prune -o -print \\) | rev | cut -d"/" -f1 | cut -d"." -f2- | rev"}"
+
+  eval "$cmd" | FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} --reverse --bind=ctrl-z:ignore $FZF_DEFAULT_OPTS $FZF_CTRL_F_OPTS" $(__fzfcmd) -m "$@" | while read -r item
+  do
+    printf '%q ' "$item"
+  done
+  echo
+}
+
 if [[ $- =~ i ]]; then
 
 __fzfcmd() {
@@ -42,6 +52,12 @@ fzf-file-widget() {
   else
     selected="$(__fzf_select__)"
   fi
+  READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
+  READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
+}
+
+fzf-py-file-basename-widget() {
+  local selected="$(__fzf_select_py_file_basename_no_ext__)"
   READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
   READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
 }
@@ -86,10 +102,15 @@ if (( BASH_VERSINFO[0] < 4 )); then
   bind -m vi-command '"\C-r": "\C-z\C-r\C-z"'
   bind -m vi-insert '"\C-r": "\C-z\C-r\C-z"'
 else
-  # CTRL-F - Paste the selected file path into the command line
+  # CTRL-F - Paste the selected file or dir path into the command line
   bind -m emacs-standard -x '"\C-f": fzf-file-widget'
   bind -m vi-command -x '"\C-f": fzf-file-widget'
   bind -m vi-insert -x '"\C-f": fzf-file-widget'
+
+  # CTRL-G - Paste the selected python file name (no ext) into the command line
+  bind -m emacs-standard -x '"\C-g": fzf-py-file-basename-widget'
+  bind -m vi-command -x '"\C-g": fzf-py-file-basename-widget'
+  bind -m vi-insert -x '"\C-g": fzf-py-file-basename-widget'
 
   # CTRL-R - Paste the selected command from history into the command line
   bind -m emacs-standard -x '"\C-r": __fzf_history__'
