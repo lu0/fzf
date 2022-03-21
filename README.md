@@ -9,7 +9,8 @@
 Quick install:
 ```sh
 git clone --depth 1 https://github.com/lu0/fzf.git
-ln -srf fzf ~/.fzf && ~/.fzf/install --all
+ln -srf fzf ~/.fzf
+~/.fzf/install --key-bindings --update-rc --no-completion
 ```
 
 **Original README**:
