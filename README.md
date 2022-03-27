@@ -3,7 +3,7 @@
 - Use `Ctrl-F` instead of `Ctrl-T` to find directories and files.
     - I associate this keybinding better with "find".
 - Find only directories when `cd ` was typed before triggering `fzf` with `Ctrl-F`.
-- Use `Ctrl-G` to find names of `py` files (don't pring path and extensions).
+- Use `Ctrl-G` to find names of `py` files in the current directory (don't print path and extensions).
 - Use case insensitive `fzf`.
 
 Quick install:
